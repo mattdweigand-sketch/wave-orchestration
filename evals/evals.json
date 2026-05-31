@@ -1,0 +1,23 @@
+{
+  "skill_name": "wave-orchestration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Start a wave to add OAuth retry handling and metrics to this repo. I want four parallel workers if the work can be split cleanly.",
+      "expected_output": "The supervisor asks shaping questions, initializes .wave, writes a spec plan, splits only disjoint bundles into the first wave, and outputs paste-ready worker prompts.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/wave-worker bundle-02-metrics",
+      "expected_output": "The worker reads .wave/PROTOCOL.md, the spec, and the bundle; sets up or resumes an isolated worktree; implements only files_in_scope; runs checks; opens one PR or local branch; and updates its status file.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Review the wave PRs and tell the workers what needs to change.",
+      "expected_output": "The reviewer maps PRs or local branches to bundle ids, reviews against acceptance criteria and files_in_scope, writes .wave/reviews/<bundle-id>.md verdicts, and does not edit feature code or worker status files.",
+      "files": []
+    }
+  ]
+}

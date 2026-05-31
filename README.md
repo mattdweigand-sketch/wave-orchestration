@@ -1,51 +1,57 @@
 # wave-orchestration
 
-A multi-agent "wave" build kit for Claude Code: one supervisor, one spec reviewer, and N
-workers across separate terminals. The supervisor shapes a spec with you and splits it
-into modular **bundles**; each worker cuts one PR in its own git worktree; the reviewer
-auto-reviews PRs against each bundle's acceptance criteria; the supervisor reviews the
-whole wave and hands back cleanup prompts. Then you test and start the next wave.
+Agent-agnostic wave build kit for parallel coding work. One supervisor shapes the spec
+and splits it into bundles. Workers each implement one bundle in an isolated worktree.
+A reviewer checks each PR or local branch against the bundle's acceptance criteria. The
+human tests, merges, and starts the next wave.
 
-## What's here
+The skills are written for Claude, ChatGPT/Codex, or any agent that can read files and
+run git commands. Claude-specific setup lives only in `CLAUDE.md` as a light pointer.
 
-```
+## What's Here
+
+```text
 skills/
-  wave-supervisor/      # /wave-supervisor — shapes spec, splits bundles, dispatches, reviews the wave
+  wave-supervisor/
     SKILL.md
-    assets/PROTOCOL.md  # the shared contract all agents obey (seeded into .wave/ at run time)
-  wave-worker/          # /wave-worker — owns one bundle, one worktree, one PR
+    references/wave-protocol.md
+  wave-worker/
     SKILL.md
-  wave-reviewer/        # /wave-reviewer — polls PRs, auto-reviews against acceptance criteria
+  wave-reviewer/
     SKILL.md
+evals/
+  evals.json
+CLAUDE.md
 ```
 
-## Install on another device
+## Install
 
-Skills live as local folders at `~/.claude/skills/<name>/`. After cloning this repo,
-copy (or symlink) the three skill folders into place:
+Install the three folders wherever your agent runtime loads local skills.
+
+Claude Code:
 
 ```bash
-git clone https://github.com/mattdweigand-sketch/wave-orchestration.git
-cd wave-orchestration
-
-# copy
+mkdir -p ~/.claude/skills
 cp -R skills/wave-supervisor skills/wave-worker skills/wave-reviewer ~/.claude/skills/
-
-# or symlink (so `git pull` updates the live skills)
-ln -s "$PWD/skills/wave-supervisor" ~/.claude/skills/wave-supervisor
-ln -s "$PWD/skills/wave-worker"     ~/.claude/skills/wave-worker
-ln -s "$PWD/skills/wave-reviewer"   ~/.claude/skills/wave-reviewer
 ```
 
-The folder name is the slash command, so this gives you `/wave-supervisor`,
-`/wave-worker`, and `/wave-reviewer`.
+Codex or ChatGPT-style local skills:
 
-## Running a wave
+```bash
+mkdir -p ~/.codex/skills
+cp -R skills/wave-supervisor skills/wave-worker skills/wave-reviewer ~/.codex/skills/
+```
 
-1. Terminal 1: `/wave-supervisor` — talk through what to build; it writes the spec and bundles.
-2. Terminals 2-5: `/wave-worker` — paste the per-bundle prompts the supervisor hands you.
-3. Terminal 6: `/wave-reviewer` — it polls open PRs and reviews each one.
-4. The supervisor reviews the wave and gives you cleanup prompts. Paste them, test, repeat.
+Symlink instead of copying if you want local edits to update the installed skills.
 
-All coordination happens through a `.wave/` folder in the target repo. See
-`skills/wave-supervisor/assets/PROTOCOL.md` for the full contract.
+## Run A Wave
+
+1. Start `wave-supervisor` in the target repo.
+2. Shape the spec with the supervisor.
+3. Open one worker terminal or session per active bundle and run `wave-worker` with the
+   bundle id the supervisor gives you.
+4. Start `wave-reviewer` so reviews are written as PRs or local branches appear.
+5. Test and merge after cleanup, then ask the supervisor for the next wave.
+
+All coordination happens through `.wave/` in the target repo. The shared contract is
+seeded from `skills/wave-supervisor/references/wave-protocol.md` into `.wave/PROTOCOL.md`.
